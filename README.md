@@ -53,9 +53,4 @@ Models download on first selection — a spinner appears while loading.
 - **Microphone** — prompted on first recording
 - **Accessibility** — required for Fn key monitoring  
   System Settings → Privacy & Security → Accessibility → add `FlameWhisper`
-
-## How it works
-
-`FlameWhisperApp.swift` — Menu bar app, Fn-key global monitor via `NSEvent`, model/mic pickers  
-`AudioRecorder.swift` — `AVAudioEngine` tap → 16kHz mono PCM  
-`Transcriber.swift` — `WhisperKit` wrapper, model download + inference  
+  
