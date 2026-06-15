@@ -2,22 +2,31 @@
 
 Menu bar dictation app for macOS. Hold **Fn** (Globe key), speak, release — text lands on your clipboard. Built on [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift).
 
-## Build
+## Download
+
+Get the latest from [GitHub Releases](https://github.com/marques576/flamewhisper/releases).
+
+1. Download `FlameWhisper.zip`
+2. Unzip and drag `FlameWhisper.app` to `/Applications`
+3. **First launch**: right-click the app → **Open** (Gatekeeper dialog → Open)
+4. Grant **Microphone** permission when prompted
+5. Grant **Accessibility** permission for Fn key monitoring:  
+   System Settings → Privacy & Security → Accessibility → add `FlameWhisper`
+
+A microphone icon appears in the menu bar when running. Press and hold the Fn key to record.
+
+Requires macOS 14+ (Apple Silicon).
+
+## Building from source
 
 ```bash
+git clone https://github.com/marques576/flamewhisper.git
 cd flamewhisper
 swift build
-```
-
-Requires macOS 14+, Xcode 16+ or Command Line Tools, Swift 6.
-
-## Run
-
-```bash
 .build/arm64-apple-macosx/debug/FlameWhisper
 ```
 
-A microphone icon appears in the menu bar.
+Requires Xcode 16+ or Command Line Tools, Swift 6.
 
 ## Usage
 
