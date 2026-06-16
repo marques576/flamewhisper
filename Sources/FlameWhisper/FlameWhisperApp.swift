@@ -100,13 +100,13 @@ final class AppState: ObservableObject {
     private func typeTextAtCursor(_ text: String) {
         guard let source = CGEventSource(stateID: .combinedSessionState) else { return }
         for char in text {
-            let str = String(char)
+            var chars = Array(String(char).utf16)
             if let down = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true) {
-                down.setStringValue(str)
+                CGEventKeyboardSetUnicodeString(down, chars.count, &chars)
                 down.post(tap: .cghidEventTap)
             }
             if let up = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false) {
-                up.setStringValue(str)
+                CGEventKeyboardSetUnicodeString(up, chars.count, &chars)
                 up.post(tap: .cghidEventTap)
             }
         }
