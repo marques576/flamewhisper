@@ -14,16 +14,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 final class AppState: ObservableObject {
     static let shared = AppState()
 
+    private static let micUIDKey = "selectedMicUID"
+    private static let micNameKey = "selectedMicName"
+
     @Published var isRecording = false
     @Published var isProcessing = false
     @Published var isDownloading = false
     @Published var errorMessage: String?
-    @Published var selectedMic: (name: String, uid: String)?
+    @Published var selectedMic: (name: String, uid: String)? {
+        didSet {
+            if let mic = selectedMic {
+                UserDefaults.standard.set(mic.uid, forKey: Self.micUIDKey)
+                UserDefaults.standard.set(mic.name, forKey: Self.micNameKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: Self.micUIDKey)
+                UserDefaults.standard.removeObject(forKey: Self.micNameKey)
+            }
+        }
+    }
 
     let recorder = AudioRecorder()
     let transcriber = Transcriber()
 
-    private init() {}
+    private init() {
+        if let uid = UserDefaults.standard.string(forKey: Self.micUIDKey),
+           let name = UserDefaults.standard.string(forKey: Self.micNameKey) {
+            self.selectedMic = (name, uid)
+        }
+    }
 
     func preloadModel() async {
         isDownloading = true

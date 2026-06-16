@@ -3,17 +3,29 @@ import WhisperKit
 
 @MainActor
 final class Transcriber: ObservableObject {
-    @Published var selectedModel: String = "tiny" {
+    private static let modelKey = "selectedModel"
+
+    @Published var selectedModel: String {
         didSet {
             if selectedModel != oldValue {
                 pipe = nil
             }
+            UserDefaults.standard.set(selectedModel, forKey: Self.modelKey)
         }
     }
 
     @Published var isLoading = false
 
     private var pipe: WhisperKit?
+
+    init() {
+        if let saved = UserDefaults.standard.string(forKey: Self.modelKey),
+           Self.availableModels.contains(saved) {
+            selectedModel = saved
+        } else {
+            selectedModel = "tiny"
+        }
+    }
 
     static let availableModels = [
         "tiny", "tiny.en",
