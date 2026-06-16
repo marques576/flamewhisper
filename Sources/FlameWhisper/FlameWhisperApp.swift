@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import CoreGraphics
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -55,10 +56,7 @@ final class AppState: ObservableObject {
             do {
                 let text = try await transcriber.transcribe(audioData)
                 if !text.isEmpty {
-                    await MainActor.run {
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(text, forType: .string)
-                    }
+                    self.typeTextAtCursor(text)
                 } else {
                     await MainActor.run {
                         errorMessage = "no speech detected"
@@ -91,6 +89,25 @@ final class AppState: ObservableObject {
             }
             await MainActor.run {
                 isDownloading = false
+            }
+        }
+    }
+
+    // MARK: - Type at cursor
+
+    /// Types the given text at the current cursor position using CGEvent keystroke injection.
+    /// Requires Accessibility permission (System Settings → Privacy & Security → Accessibility).
+    private func typeTextAtCursor(_ text: String) {
+        guard let source = CGEventSource(stateID: .combinedSessionState) else { return }
+        for char in text {
+            let str = String(char)
+            if let down = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true) {
+                down.setStringValue(str)
+                down.post(tap: .cghidEventTap)
+            }
+            if let up = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false) {
+                up.setStringValue(str)
+                up.post(tap: .cghidEventTap)
             }
         }
     }
