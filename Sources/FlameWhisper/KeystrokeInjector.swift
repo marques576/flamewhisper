@@ -38,6 +38,10 @@ enum KeystrokeInjector {
                 let event = CGEvent(keyboardEventSource: nil, virtualKey: 0, keyDown: true)
                 event?.keyboardSetUnicodeString(stringLength: count, unicodeString: chunkPtr)
                 event?.post(tap: .cghidEventTap)
+
+                let upEvent = CGEvent(keyboardEventSource: nil, virtualKey: 0, keyDown: false)
+                upEvent?.keyboardSetUnicodeString(stringLength: count, unicodeString: chunkPtr)
+                upEvent?.post(tap: .cghidEventTap)
             }
 
             index = end

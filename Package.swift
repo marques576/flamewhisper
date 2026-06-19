@@ -17,5 +17,10 @@ let package = Package(
             ],
             path: "Sources/FlameWhisper"
         ),
+        .testTarget(
+            name: "FlameWhisperTests",
+            dependencies: ["FlameWhisper"],
+            path: "Tests"
+        ),
     ]
 )

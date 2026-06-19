@@ -1,9 +1,11 @@
 @preconcurrency import AVFoundation
 import CoreAudio
+import os
 
 final class AudioRecorder: @unchecked Sendable {
     private let engine = AVAudioEngine()
-    private var samples: [Float] = []
+    private var _samples: [Float] = []
+    private let _lock = OSAllocatedUnfairLock()
     private let sampleRate: Double = 16000
     private let maxSeconds: Double = 30
     var selectedDeviceUID: String?
@@ -80,7 +82,7 @@ final class AudioRecorder: @unchecked Sendable {
     }
 
     func start() {
-        samples = []
+        _lock.withLock { _samples = [] }
         engine.stop()
         engine.reset()
 
@@ -105,7 +107,13 @@ final class AudioRecorder: @unchecked Sendable {
             bufferSize: 4096,
             format: nativeFormat
         ) { [weak self] inBuf, _ in
-            guard let self, self.samples.count < Int(self.sampleRate * self.maxSeconds) else { return }
+            guard let self else { return }
+
+            let maxSampleCount = Int(self.sampleRate * self.maxSeconds)
+            let canAccept = self._lock.withLock {
+                self._samples.count < maxSampleCount
+            }
+            guard canAccept else { return }
 
             let ratio = self.sampleRate / nativeFormat.sampleRate
             let outCap = AVAudioFrameCount(Double(inBuf.frameLength) * ratio + 1)
@@ -123,8 +131,12 @@ final class AudioRecorder: @unchecked Sendable {
 
             if err == nil, let ptr = outBuf.floatChannelData?[0] {
                 let n = Int(outBuf.frameLength)
-                for i in 0..<n {
-                    self.samples.append(ptr[i])
+                self._lock.withLock {
+                    let remaining = maxSampleCount - self._samples.count
+                    let toAdd = min(n, remaining)
+                    for i in 0..<toAdd {
+                        self._samples.append(ptr[i])
+                    }
                 }
             }
         }
@@ -142,7 +154,7 @@ final class AudioRecorder: @unchecked Sendable {
     }
 
     func getSamples() -> [Float] {
-        samples
+        _lock.withLock { _samples }
     }
 
     private func deviceID(for uid: String) -> AudioDeviceID? {

@@ -31,6 +31,9 @@ final class AppState: ObservableObject {
     @Published var isRecording = false
     @Published var isProcessing = false
     @Published var isDownloading = false
+    @Published var isModelLoading = false
+    @Published var downloadProgress: Double = 0  // 0.0–1.0 during download
+    @Published var recordingSeconds: Int = 0
     @Published var errorMessage: String?
     @Published var selectedMic: (name: String, uid: String)? {
         didSet {
@@ -48,6 +51,7 @@ final class AppState: ObservableObject {
     let transcriber = Transcriber()
 
     private var accessibilityError = false
+    private var recordingTask: Task<Void, Never>?
 
     private init() {
         if let uid = UserDefaults.standard.string(forKey: Self.micUIDKey),
@@ -76,11 +80,22 @@ final class AppState: ObservableObject {
 
     func preloadModel() async {
         isDownloading = true
+        downloadProgress = 0
+        isModelLoading = false
         do {
-            try await transcriber.prepareModel()
+            try await transcriber.prepareModel(
+                onDownloadProgress: { [weak self] progress in
+                    self?.downloadProgress = progress
+                },
+                onLoadStateChange: { [weak self] isLoading in
+                    self?.isModelLoading = isLoading
+                }
+            )
         } catch {
             errorMessage = "failed to load model: \(error.localizedDescription)"
         }
+        downloadProgress = 0
+        isModelLoading = false
         isDownloading = false
     }
 
@@ -89,12 +104,23 @@ final class AppState: ObservableObject {
         errorMessage = nil
         recorder.selectedDeviceUID = selectedMic?.uid
         isRecording = true
+        recordingSeconds = 0
+        recordingTask = Task { [weak self] in
+            guard let self else { return }
+            for s in 1...30 {
+                try? await Task.sleep(for: .seconds(1))
+                if Task.isCancelled { return }
+                await MainActor.run { self.recordingSeconds = s }
+            }
+        }
         recorder.start()
     }
 
     func stopAndTranscribe() {
         guard isRecording else { return }
         isRecording = false
+        recordingTask?.cancel()
+        recordingTask = nil
         isProcessing = true
         recorder.stop()
 
@@ -131,16 +157,27 @@ final class AppState: ObservableObject {
         transcriber.selectedModel = model
         errorMessage = nil
         isDownloading = true
+        downloadProgress = 0
+        isModelLoading = false
 
         Task {
             do {
-                try await transcriber.prepareModel()
+                try await transcriber.prepareModel(
+                    onDownloadProgress: { [weak self] progress in
+                        self?.downloadProgress = progress
+                    },
+                    onLoadStateChange: { [weak self] isLoading in
+                        self?.isModelLoading = isLoading
+                    }
+                )
             } catch {
                 await MainActor.run {
                     errorMessage = "download failed: \(error.localizedDescription)"
                 }
             }
             await MainActor.run {
+                downloadProgress = 0
+                isModelLoading = false
                 isDownloading = false
             }
         }
@@ -178,12 +215,25 @@ struct FlameWhisperApp: App {
                     Divider()
                 }
 
-                if appState.isDownloading {
+                if appState.isModelLoading {
                     HStack {
                         ProgressView().scaleEffect(0.6).frame(width: 16, height: 16)
-                        Text("loading \(appState.transcriber.selectedModel)...").font(.caption)
+                        Text("loading model...").font(.caption)
                     }
                     .padding(.vertical, 4)
+                } else if appState.isDownloading {
+                    let dp = appState.downloadProgress
+                    if dp > 0 && dp < 1.0 {
+                        Text("downloading \(Int(dp * 100))%")
+                            .font(.caption.monospacedDigit())
+                            .padding(.vertical, 4)
+                    } else {
+                        HStack {
+                            ProgressView().scaleEffect(0.6).frame(width: 16, height: 16)
+                            Text("loading \(appState.transcriber.selectedModel)...").font(.caption)
+                        }
+                        .padding(.vertical, 4)
+                    }
                 } else if appState.isProcessing {
                     HStack {
                         ProgressView().scaleEffect(0.6).frame(width: 16, height: 16)
@@ -193,7 +243,7 @@ struct FlameWhisperApp: App {
                 } else if appState.isRecording {
                     HStack {
                         Circle().fill(.red).frame(width: 8, height: 8)
-                        Text("recording — release fn").font(.caption)
+                        Text("recording \(appState.recordingSeconds)s — release fn").font(.caption)
                     }
                     .padding(.vertical, 4)
                 } else {

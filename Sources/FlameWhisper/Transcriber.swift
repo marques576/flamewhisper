@@ -35,11 +35,33 @@ final class Transcriber: ObservableObject {
         "large-v3", "large-v3-v20240930_626MB",
     ]
 
-    func prepareModel() async throws {
+    func prepareModel(
+        onDownloadProgress: (@MainActor (Double) -> Void)? = nil,
+        onLoadStateChange: (@MainActor (Bool) -> Void)? = nil
+    ) async throws {
         guard pipe == nil else { return }
         isLoading = true
         defer { isLoading = false }
-        pipe = try await WhisperKit(WhisperKitConfig(model: selectedModel, load: true))
+
+        // Step 1: download model with progress callbacks
+        let modelFolder: URL = try await WhisperKit.download(
+            variant: selectedModel,
+            progressCallback: { progress in
+                Task { @MainActor in
+                    onDownloadProgress?(progress.fractionCompleted)
+                }
+            }
+        )
+
+        // Step 2: load model into memory — track loading state
+        onLoadStateChange?(true)
+        let newPipe = try await WhisperKit(
+            modelFolder: modelFolder.path,
+            load: true,
+            download: false
+        )
+        pipe = newPipe
+        onLoadStateChange?(false)
     }
 
     func transcribe(_ audioSamples: [Float]) async throws -> String {
