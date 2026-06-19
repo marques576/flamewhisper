@@ -1,5 +1,5 @@
 import Foundation
-import WhisperKit
+@preconcurrency import WhisperKit
 
 @MainActor
 final class Transcriber: ObservableObject {
