@@ -1,6 +1,6 @@
 # FlameWhisper
 
-Speech-to-text accessibility tool for macOS (Apple Silicon). Runs local inference of OpenAI Whisper models optimized for MLX via [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift). Hold **Fn** (Globe key), speak, release — text appears where your cursor is.
+Speech-to-text accessibility tool for macOS (Apple Silicon). Runs local inference of OpenAI Whisper models optimized for MLX via [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift). Hold **Fn** (Globe key), speak, release and text will appear where your cursor is.
 
 ## Download
 
