@@ -1,11 +1,22 @@
 import SwiftUI
 import AppKit
+import ApplicationServices
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AppState.shared.ensureAccessibility()
         AppState.shared.installFnMonitor()
         Task {
             await AppState.shared.preloadModel()
+        }
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            Task { @MainActor in
+                AppState.shared.ensureAccessibility()
+            }
         }
     }
 }
@@ -23,7 +34,27 @@ final class AppState: ObservableObject {
     let recorder = AudioRecorder()
     let transcriber = Transcriber()
 
+    private var accessibilityError = false
+
     private init() {}
+
+    /// Verifies Accessibility trust (required for both the Fn-key global
+    /// monitor and CGEvent-based text injection). If not trusted, triggers the
+    /// system prompt so the user can add FlameWhisper, and surfaces an error.
+    /// When trust is (re)granted, clears any previously-surfaced access error.
+    func ensureAccessibility() {
+        let options: NSDictionary = ["AXTrustedCheckOptionPrompt": true]
+        let trusted = AXIsProcessTrustedWithOptions(options)
+        if trusted {
+            if accessibilityError {
+                accessibilityError = false
+                errorMessage = nil
+            }
+        } else {
+            accessibilityError = true
+            errorMessage = "Accessibility permission required — grant it in System Settings → Privacy & Security → Accessibility, then restart FlameWhisper"
+        }
+    }
 
     func preloadModel() async {
         isDownloading = true
@@ -55,9 +86,11 @@ final class AppState: ObservableObject {
             do {
                 let text = try await transcriber.transcribe(audioData)
                 if !text.isEmpty {
-                    await MainActor.run {
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(text, forType: .string)
+                    let posted = KeystrokeInjector.type(text)
+                    if !posted {
+                        await MainActor.run {
+                            self.ensureAccessibility()
+                        }
                     }
                 } else {
                     await MainActor.run {

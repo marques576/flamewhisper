@@ -1,6 +1,6 @@
 # FlameWhisper
 
-Speech-to-text accessibility tool for macOS (Apple Silicon). Runs local inference of OpenAI Whisper models optimized for MLX via [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift). Hold **Fn** (Globe key), speak, release — text lands on your clipboard.
+Speech-to-text accessibility tool for macOS (Apple Silicon). Runs local inference of OpenAI Whisper models optimized for MLX via [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift). Hold **Fn** (Globe key), speak, release — text appears where your cursor is.
 
 ## Download
 
@@ -10,7 +10,7 @@ Get the latest from [GitHub Releases](https://github.com/marques576/flamewhisper
 2. Unzip and drag `FlameWhisper.app` to `/Applications`
 3. **First launch**: right-click the app → **Open** (Gatekeeper dialog → Open)
 4. Grant **Microphone** permission when prompted
-5. Grant **Accessibility** permission for Fn key monitoring:  
+5. Grant **Accessibility** permission for Fn key monitoring and typing at the cursor:  
    System Settings → Privacy & Security → Accessibility → add `FlameWhisper`
 
 A microphone icon appears in the menu bar when running. Press and hold the Fn key to record.
@@ -37,7 +37,7 @@ Requires Xcode 16+ or Command Line Tools, Swift 6.
 | Change mic | Menu bar → `mic:` submenu |
 | Quit | Menu bar → quit, or Cmd+Q from the dropdown |
 
-Transcription is placed on the clipboard after each utterance — paste it anywhere.
+Transcription is typed at the frontmost app's cursor after each utterance. Keep the target app focused while dictation finishes.
 
 ## Models
 
@@ -60,6 +60,6 @@ Models download on first selection — a spinner appears while loading.
 ## Permissions
 
 - **Microphone** — prompted on first recording
-- **Accessibility** — required for Fn key monitoring  
+- **Accessibility** — required for Fn key monitoring and typing at the cursor  
   System Settings → Privacy & Security → Accessibility → add `FlameWhisper`
   

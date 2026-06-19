@@ -15,6 +15,7 @@ Depends on `WhisperKit` from `argmaxinc/argmax-oss-swift`. First build pulls the
 - `FlameWhisperApp.swift` — `@main` app, `MenuBarExtra` UI, `AppState` singleton (recording/processing/downloading state), Fn-key global monitor, model + mic picker
 - `AudioRecorder.swift` — `AVAudioEngine` tap → downsample to 16kHz mono Float32 array via `AVAudioConverter`
 - `Transcriber.swift` — wraps `WhisperKit`, model download + load, `transcribe(audioArray:)` → joined text
+- `KeystrokeInjector.swift` — `type(_:)` injects text at the frontmost app's cursor via `CGEvent` unicode-string key-down events (≤20 UTF-16 units/event, surrogate-pair safe)
 
 No tests. No CI. Single executable target.
 
@@ -44,8 +45,10 @@ AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_CurrentDevice,
 ### Fn key monitoring
 Uses `NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged)` watching `.function` modifier flag. Requires **Accessibility** permission (System Settings → Privacy → Accessibility). Recording is blocked while downloading or processing.
 
-### Clipboard-only output
-Transcription is placed on `NSPasteboard.general` only — no Cmd+V injection. The `KeystrokeInjector` was intentionally removed.
+### Cursor injection output
+Transcription is typed at the frontmost app's insertion point via `KeystrokeInjector` (`Sources/FlameWhisper/KeystrokeInjector.swift`), which synthesizes `CGEvent` key-down events carrying a unicode string payload (`keyboardSetUnicodeString`). No clipboard / Cmd+V. Requires **Accessibility** permission (same grant the Fn-key monitor uses). Caveats:
+- `CGEventKeyboardEventSetUnicodeString` carries at most 20 UTF-16 code units per event, so text is chunked; chunks never split a surrogate pair (the high surrogate at a boundary is deferred to the next chunk so each event stays ≤20 units and the OS won't truncate/re-split it).
+- Events are posted to `.cghidEventTap`; they go to whichever app is focused when transcription finishes, so a focus change during the (async) transcribe step will send the text to the newly focused app.
 
 ### Model download UI
 `selectModel()` calls `prepareModel()` immediately, which downloads + loads the model. `isDownloading` state blocks recording during download. Menu bar shows spinner + "loading <model>...".
