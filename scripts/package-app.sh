@@ -49,7 +49,6 @@ cp "$ENTITLEMENTS" "$APP_DIR/Contents/Resources/"
 echo "==> Code-signing (ad-hoc)..."
 codesign --force --deep --sign - \
     --entitlements "$ENTITLEMENTS" \
-    --options runtime \
     "$APP_DIR"
 
 echo "==> Done: $APP_DIR"

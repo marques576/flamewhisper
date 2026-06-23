@@ -23,7 +23,7 @@ final class Transcriber: ObservableObject {
            Self.availableModels.contains(saved) {
             selectedModel = saved
         } else {
-            selectedModel = "tiny"
+            selectedModel = "base"
         }
     }
 
