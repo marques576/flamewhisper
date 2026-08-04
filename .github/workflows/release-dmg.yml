@@ -1,0 +1,33 @@
+name: Release DMG
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build-dmg:
+    name: Build FlameWhisper.dmg
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create DMG installer
+        run: ./scripts/create-dmg.sh
+
+      - name: Verify artifacts
+        run: |
+          ls -lh dist/
+          file dist/FlameWhisper.app/Contents/MacOS/FlameWhisper
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/FlameWhisper.dmg
+            dist/FlameWhisper.zip
+          generate_release_notes: true
+          fail_on_unmatched_files: true
