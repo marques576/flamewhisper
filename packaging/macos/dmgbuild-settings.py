@@ -2,7 +2,13 @@
 # Used by scripts/create-dmg.sh — see https://dmgbuild.readthedocs.io
 import os
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.environ.get("DMGBUILD_SETTINGS_DIR")
+if HERE is None:
+    try:
+        HERE = os.path.dirname(os.path.abspath(__file__))
+    except NameError:
+        HERE = os.path.abspath("packaging/macos")
+
 PROJECT_DIR = os.path.abspath(os.path.join(HERE, "..", ".."))
 
 app = os.path.join(PROJECT_DIR, "dist", "FlameWhisper.app")

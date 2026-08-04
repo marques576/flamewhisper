@@ -10,8 +10,12 @@ BUNDLE_NAME="$APP_NAME.app"
 INFO_PLIST="$PROJECT_DIR/Resources/Info.plist"
 ENTITLEMENTS="$PROJECT_DIR/WhisperFlow.entitlements"
 ARCHS="${ARCHS:-arm64}"
+SWIFTPM_CACHE_DIR="${SWIFTPM_CACHE_DIR:-$BUILD_DIR/swiftpm-cache}"
+CLANG_MODULE_CACHE_PATH="${CLANG_MODULE_CACHE_PATH:-$BUILD_DIR/clang-module-cache}"
 
 mkdir -p "$OUTPUT_DIR"
+mkdir -p "$SWIFTPM_CACHE_DIR" "$CLANG_MODULE_CACHE_PATH"
+export CLANG_MODULE_CACHE_PATH
 
 # Build
 echo "==> Building for archs: $ARCHS"
@@ -19,7 +23,11 @@ echo "==> Building for archs: $ARCHS"
 BINARIES=()
 for arch in $ARCHS; do
     echo "  -> Building $arch..."
-    swift build -c release --arch "$arch" --build-path "$BUILD_DIR"
+    swift build \
+        -c release \
+        --arch "$arch" \
+        --build-path "$BUILD_DIR" \
+        --cache-path "$SWIFTPM_CACHE_DIR"
     bin="$BUILD_DIR/$arch-apple-macosx/release/$APP_NAME"
     if [ ! -f "$bin" ]; then
         echo "ERROR: build product not found: $bin"

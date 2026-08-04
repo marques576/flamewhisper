@@ -10,6 +10,7 @@ cd "$PROJECT_DIR"
 OUTPUT_DIR="${OUTPUT_DIR:-$PROJECT_DIR/dist}"
 DMG_PATH="$OUTPUT_DIR/FlameWhisper.dmg"
 SETTINGS="$PROJECT_DIR/packaging/macos/dmgbuild-settings.py"
+export DMGBUILD_SETTINGS_DIR="$(dirname "$SETTINGS")"
 
 mkdir -p "$OUTPUT_DIR"
 
