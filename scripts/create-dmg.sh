@@ -38,6 +38,3 @@ rm -f "$DMG_PATH"
 
 echo "==> Done: $DMG_PATH"
 ls -lh "$DMG_PATH"
-
-echo ""
-echo "Done"
