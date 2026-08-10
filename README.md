@@ -15,9 +15,9 @@ Get the latest from [GitHub Releases](https://github.com/marques576/flamewhisper
 5. Grant **Accessibility** permission for Fn key monitoring and typing at the cursor:  
    System Settings → Privacy & Security → Accessibility → add `FlameWhisper`
 
-Prefer a plain zip? Download `FlameWhisper.zip` instead — unzip and drag `FlameWhisper.app` to `/Applications`.
-
 A microphone icon appears in the menu bar when running. Press and hold the Fn key to record.
+
+On first launch, the default model is downloaded automatically (a few hundred MB) — this can take a few minutes depending on your connection.
 
 Requires macOS 14+ (Apple Silicon).
 

@@ -14,7 +14,7 @@ export DMGBUILD_SETTINGS_DIR="$(dirname "$SETTINGS")"
 
 mkdir -p "$OUTPUT_DIR"
 
-# 1. Build the .app bundle (also produces FlameWhisper.zip)
+# 1. Build the .app bundle
 echo "==> Building .app bundle..."
 "$PROJECT_DIR/scripts/package-app.sh"
 
@@ -40,5 +40,4 @@ echo "==> Done: $DMG_PATH"
 ls -lh "$DMG_PATH"
 
 echo ""
-echo "To distribute: upload FlameWhisper.dmg to GitHub Releases."
-echo "Users: open the DMG, drag FlameWhisper.app into the Applications folder link."
+echo "Done"

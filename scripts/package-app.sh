@@ -8,7 +8,7 @@ OUTPUT_DIR="${OUTPUT_DIR:-$PROJECT_DIR/dist}"
 APP_NAME="FlameWhisper"
 BUNDLE_NAME="$APP_NAME.app"
 INFO_PLIST="$PROJECT_DIR/Resources/Info.plist"
-ENTITLEMENTS="$PROJECT_DIR/WhisperFlow.entitlements"
+ENTITLEMENTS="$PROJECT_DIR/FlameWhisper.entitlements"
 ARCHS="${ARCHS:-arm64}"
 SWIFTPM_CACHE_DIR="${SWIFTPM_CACHE_DIR:-$BUILD_DIR/swiftpm-cache}"
 CLANG_MODULE_CACHE_PATH="${CLANG_MODULE_CACHE_PATH:-$BUILD_DIR/clang-module-cache}"
@@ -60,15 +60,3 @@ codesign --force --deep --sign - \
     "$APP_DIR"
 
 echo "==> Done: $APP_DIR"
-
-# Optionally zip
-if [ "${ZIP:-1}" = "1" ]; then
-    ZIP_FILE="$OUTPUT_DIR/$APP_NAME.zip"
-    rm -f "$ZIP_FILE"
-    ditto -c -k --keepParent "$APP_DIR" "$ZIP_FILE"
-    echo "==> Archive: $ZIP_FILE"
-fi
-
-echo ""
-echo "To distribute: share $APP_NAME.zip"
-echo "Users: unzip, drag to /Applications, right-click → Open (first launch only)"
