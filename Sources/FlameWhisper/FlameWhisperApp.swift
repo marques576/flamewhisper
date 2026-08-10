@@ -255,7 +255,7 @@ struct FlameWhisperApp: App {
             .padding(8)
         } label: {
             if appState.isDownloading {
-                Image(systemName: "arrow.down.circle")
+                Image(systemName: "arrow.triangle.2.circlepath")
             } else if appState.isProcessing {
                 Image(systemName: "hourglass")
             } else if appState.isRecording {
