@@ -6,14 +6,18 @@ Speech-to-text accessibility tool for macOS (Apple Silicon). Runs local inferenc
 
 Get the latest from [GitHub Releases](https://github.com/marques576/flamewhisper/releases).
 
-1. Download `FlameWhisper.zip`
-2. Unzip and drag `FlameWhisper.app` to `/Applications`
+**Drag-install (recommended):** download `FlameWhisper.dmg`, double-click to open it, then drag `FlameWhisper.app` onto the **Applications** folder shortcut.
+
+1. Download `FlameWhisper.dmg`
+2. Open it and drag `FlameWhisper.app` to the **Applications** folder link
 3. **First launch**: right-click the app → **Open** (Gatekeeper dialog → Open)
 4. Grant **Microphone** permission when prompted
 5. Grant **Accessibility** permission for Fn key monitoring and typing at the cursor:  
    System Settings → Privacy & Security → Accessibility → add `FlameWhisper`
 
 A microphone icon appears in the menu bar when running. Press and hold the Fn key to record.
+
+On first launch, the default model is downloaded automatically (a few hundred MB) — this can take a few minutes depending on your connection.
 
 Requires macOS 14+ (Apple Silicon).
 

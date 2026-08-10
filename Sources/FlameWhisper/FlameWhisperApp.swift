@@ -1,10 +1,12 @@
 import SwiftUI
 import AppKit
 import ApplicationServices
+import AVFoundation
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppState.shared.ensureAccessibility()
+        AppState.shared.requestMicrophonePermission()
         AppState.shared.installFnMonitor()
         Task {
             await AppState.shared.preloadModel()
@@ -71,6 +73,19 @@ final class AppState: ObservableObject {
         } else {
             accessibilityError = true
             errorMessage = "Accessibility permission required — grant it in System Settings → Privacy & Security → Accessibility, then restart FlameWhisper"
+        }
+    }
+
+    /// Requests mic permission up front (if not already determined) so the
+    /// system prompt appears at launch instead of on the first Fn press.
+    func requestMicrophonePermission() {
+        if AVAudioApplication.shared.recordPermission != .undetermined { return }
+        AVAudioApplication.requestRecordPermission { [weak self] granted in
+            DispatchQueue.main.async {
+                if !granted {
+                    self?.errorMessage = "Mic permission denied — enable it in System Settings → Privacy & Security → Microphone"
+                }
+            }
         }
     }
 
@@ -255,7 +270,7 @@ struct FlameWhisperApp: App {
             .padding(8)
         } label: {
             if appState.isDownloading {
-                Image(systemName: "arrow.down.circle")
+                Image(systemName: "arrow.triangle.2.circlepath")
             } else if appState.isProcessing {
                 Image(systemName: "hourglass")
             } else if appState.isRecording {

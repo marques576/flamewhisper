@@ -62,3 +62,7 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 .DS_Store
 dist/
+
+# Python
+__pycache__/
+*.pyc
