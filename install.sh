@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Build the .app bundle (release) and install it into /Applications.
 
-PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_SOURCE="$PROJECT_DIR/dist/FlameWhisper.app"
 APP_DEST="/Applications/FlameWhisper.app"
 

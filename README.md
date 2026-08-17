@@ -7,7 +7,7 @@ Speech-to-text accessibility tool for macOS (Apple Silicon). Runs local inferenc
 Builds a release `.app` and installs it into `/Applications`:
 
 ```bash
-git clone https://github.com/marques576/flamewhisper.git && cd flamewhisper && ./scripts/install.sh
+git clone https://github.com/marques576/flamewhisper.git && cd flamewhisper && ./install.sh
 ```
 
 The script runs [`scripts/package-app.sh`](scripts/package-app.sh) (release build + ad-hoc codesign), copies the app to `/Applications`, and reveals it in Finder.
