@@ -7,6 +7,7 @@ BUILD_DIR="$PROJECT_DIR/.build"
 OUTPUT_DIR="${OUTPUT_DIR:-$PROJECT_DIR/dist}"
 APP_NAME="FlameWhisper"
 BUNDLE_NAME="$APP_NAME.app"
+APP_IDENTIFIER="ai.flamewhisper.app"
 INFO_PLIST="$PROJECT_DIR/Resources/Info.plist"
 ENTITLEMENTS="$PROJECT_DIR/FlameWhisper.entitlements"
 ARCHS="${ARCHS:-arm64}"
@@ -56,7 +57,11 @@ cp "$ENTITLEMENTS" "$APP_DIR/Contents/Resources/"
 # Code-sign (ad-hoc)
 echo "==> Code-signing (ad-hoc)..."
 codesign --force --deep --sign - \
+    --identifier "$APP_IDENTIFIER" \
     --entitlements "$ENTITLEMENTS" \
+    --requirements "=designated => identifier \"$APP_IDENTIFIER\"" \
     "$APP_DIR"
+
+codesign --verify --deep --strict "$APP_DIR"
 
 echo "==> Done: $APP_DIR"
