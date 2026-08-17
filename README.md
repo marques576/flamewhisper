@@ -1,25 +1,26 @@
-# FlameWhisper
+<img src="packaging/macos/header.png" alt="FlameWhisper" width="100%" />
 
 Speech-to-text accessibility tool for macOS (Apple Silicon). Runs local inference of OpenAI Whisper models optimized for MLX via [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift). Hold **Fn** (Globe key), speak, release and text will appear where your cursor is.
 
-## Download
+## Install
 
-Get the latest from [GitHub Releases](https://github.com/marques576/flamewhisper/releases).
+Builds a release `.app` and installs it into `/Applications`:
 
-**Drag-install (recommended):** download `FlameWhisper.dmg`, double-click to open it, then drag `FlameWhisper.app` onto the **Applications** folder shortcut.
+```bash
+git clone https://github.com/marques576/flamewhisper.git && cd flamewhisper && ./scripts/install.sh
+```
 
-1. Download `FlameWhisper.dmg`
-2. Open it and drag `FlameWhisper.app` to the **Applications** folder link
-3. **First launch**: right-click the app → **Open** (Gatekeeper dialog → Open)
-4. Grant **Microphone** permission when prompted
-5. Grant **Accessibility** permission for Fn key monitoring and typing at the cursor:  
+The script runs [`scripts/package-app.sh`](scripts/package-app.sh) (release build + ad-hoc codesign), copies the app to `/Applications`, and reveals it in Finder.
+
+1. **First launch**: right-click the app → **Open** (Gatekeeper dialog → Open)
+2. Grant **Microphone** permission when prompted
+3. Grant **Accessibility** permission for Fn key monitoring and typing at the cursor:  
    System Settings → Privacy & Security → Accessibility → add `FlameWhisper`
 
 A microphone icon appears in the menu bar when running. Press and hold the Fn key to record.
 
 On first launch, the default model is downloaded automatically (a few hundred MB) — this can take a few minutes depending on your connection.
 
-Requires macOS 14+ (Apple Silicon).
 
 ## Building from source
 
